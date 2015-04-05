@@ -25,7 +25,10 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class MusicSystemTest {
 
-	public static final float arbitraryLongTime = 5 * MusicSystem.CROSS_FADE_SECONDS;
+	public static final float shortTime = (1f / 8f) * MusicSystem.defaultCrossFadeSeconds;
+	public static final float halfCrossFade = (4f / 8f) * MusicSystem.defaultCrossFadeSeconds;
+	public static final float underCrossFade = (7f / 8f) * MusicSystem.defaultCrossFadeSeconds;
+	public static final float longTime = (40f / 8f) * MusicSystem.defaultCrossFadeSeconds;
 
 	@Spy
 	public MusicSystem system;
@@ -156,7 +159,7 @@ public class MusicSystemTest {
 	@Test
 	public void playCrossFadesNewMusic() {
 		system.play(music1);
-		system.update(arbitraryLongTime);
+		system.update(longTime);
 
 		when(music1.isPlaying()).thenReturn(true);
 		system.play(music2);
@@ -168,7 +171,7 @@ public class MusicSystemTest {
 
 		when(music1.isPlaying()).thenReturn(true);
 		when(music2.isPlaying()).thenReturn(true);
-		system.update(MusicSystem.CROSS_FADE_SECONDS / 2);
+		system.update(halfCrossFade);
 		verify(music1, atLeastOnce()).setVolume(volume1.capture());
 		verify(music2, atLeastOnce()).setVolume(volume2.capture());
 		assertThat(volume1.getValue(), isGreaterThan(0.1f));
@@ -176,7 +179,7 @@ public class MusicSystemTest {
 
 		when(music1.isPlaying()).thenReturn(true);
 		when(music2.isPlaying()).thenReturn(true);
-		system.update(MusicSystem.CROSS_FADE_SECONDS / 2);
+		system.update(halfCrossFade);
 		verify(music1, atLeastOnce()).setVolume(volume1.capture());
 		verify(music2, atLeastOnce()).setVolume(volume2.capture());
 		assertThat(volume1.getValue(), isCloseTo(0));
@@ -187,11 +190,11 @@ public class MusicSystemTest {
 	public void playWhenJustStartedFadingPseudoCrossFades() {
 		system.play(music1);
 		when(music1.isPlaying()).thenReturn(true);
-		system.update(arbitraryLongTime);
+		system.update(longTime);
 
 		system.play(music2);
 		when(music2.isPlaying()).thenReturn(true);
-		system.update(MusicSystem.CROSS_FADE_SECONDS * 1f / 8f);
+		system.update(shortTime);
 
 		system.play(music3);
 		when(music3.isPlaying()).thenReturn(true);
@@ -208,11 +211,11 @@ public class MusicSystemTest {
 	public void playWhenAlmostFinishedFadingPseudoCrossFades() {
 		system.play(music1);
 		when(music1.isPlaying()).thenReturn(true);
-		system.update(arbitraryLongTime);
+		system.update(longTime);
 
 		system.play(music2);
 		when(music2.isPlaying()).thenReturn(true);
-		system.update(MusicSystem.CROSS_FADE_SECONDS * 7f / 8f);
+		system.update(underCrossFade);
 
 		system.play(music3);
 		when(music3.isPlaying()).thenReturn(true);

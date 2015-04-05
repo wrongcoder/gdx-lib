@@ -5,7 +5,9 @@ import com.badlogic.gdx.utils.Array;
 
 public class MusicSystem {
 
-	public static float CROSS_FADE_SECONDS = 2.5f;
+	public static final float defaultCrossFadeSeconds = 2.5f;
+
+	private final float crossFadeSeconds;
 
 	private Music previousMusic = null;
 	private float previousFadeOutSeconds = 0;
@@ -13,6 +15,14 @@ public class MusicSystem {
 	private float currentFadeInSeconds = 0;
 
 	private final Array<Music> queuedMusic = new Array<Music>(true, 1);
+
+	public MusicSystem() {
+		this.crossFadeSeconds = defaultCrossFadeSeconds;
+	}
+
+	public MusicSystem(final float crossFadeSeconds) {
+		this.crossFadeSeconds = crossFadeSeconds;
+	}
 
 	/** Start playing this Music immediately */
 	public void play(final Music music) {
@@ -50,15 +60,15 @@ public class MusicSystem {
 			if (previousFadeOutSeconds < 0) {
 				previousMusic.stop();
 			} else {
-				previousMusic.setVolume(previousFadeOutSeconds / CROSS_FADE_SECONDS);
+				previousMusic.setVolume(previousFadeOutSeconds / crossFadeSeconds);
 			}
 		}
-		if (currentFadeInSeconds < CROSS_FADE_SECONDS && isPlaying(currentMusic)) {
+		if (currentFadeInSeconds < crossFadeSeconds && isPlaying(currentMusic)) {
 			currentFadeInSeconds += delta;
-			if (currentFadeInSeconds > CROSS_FADE_SECONDS) {
+			if (currentFadeInSeconds > crossFadeSeconds) {
 				currentMusic.setVolume(1);
 			} else {
-				currentMusic.setVolume(currentFadeInSeconds / CROSS_FADE_SECONDS);
+				currentMusic.setVolume(currentFadeInSeconds / crossFadeSeconds);
 			}
 		}
 	}
@@ -84,12 +94,12 @@ public class MusicSystem {
 			nextMusic.setVolume(0);
 			currentFadeInSeconds = 0;
 		} else if (isPlaying(currentMusic)) { /* previous is not playing */
-			previousFadeOutSeconds = CROSS_FADE_SECONDS;
+			previousFadeOutSeconds = crossFadeSeconds;
 			nextMusic.setVolume(0);
 			currentFadeInSeconds = 0;
 		} else { /* neither are playing */
 			nextMusic.setVolume(1);
-			currentFadeInSeconds = CROSS_FADE_SECONDS;
+			currentFadeInSeconds = crossFadeSeconds;
 		}
 
 		previousMusic = currentMusic;
